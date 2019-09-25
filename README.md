@@ -37,9 +37,8 @@ Docker Compose : 하나의 yaml 형식의 설정파일에 여러개의 컨테이
        > 카프카 환경설정.
         - KAFKA_BROKER_ID : 카프카에는 하나의 브로커가 존재.
         - KAFKA_ZOOKEEPER_CONNECT : 연결시킬 zookeeper 
-        - KAFKA_ADVERTISED_LISTENERS :  
+        - KAFKA_ADVERTISED_LISTENERS : 카프카 브로커를 가리키는 사용가능 주소 목록
         
-    
     - extends <br> 다른 서비스를 현재 파일에 가져와 확장해서 사용. 
     
   
