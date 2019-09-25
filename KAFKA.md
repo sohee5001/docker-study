@@ -35,7 +35,7 @@
  * console 명령어  
     1. topic 리스트 확인 <br>
      => ./kafka-topics --zookeeper 쥬키퍼 호스트 네임:쥬키퍼port --list
-        ![topic-list](./image/topic-list.png) <
+        ![topic-list](./image/topic-list.png) <br>
        topic 목록을 보면 4개의 토픽들(test-kafka,test-kafka2,test-kafka3,test1)이 존재한다.
        
     2. topic 생성 <br>
@@ -55,7 +55,7 @@
         ![topic-list](./image/consumerGroup.png)   
   
     6. consumer 그룹 리스트 확인하기
-    => ./kafka-consumer-groups --bootstrap-server 카프카 호스트 네임:카프카port --list
+    => ./kafka-consumer-groups --bootstrap-server 카프카 호스트 네임:카프카port --list<br>
         ![topic-list](./image/consumer-groupList.png)  
     
     7. consumer 그룹 상세 정보 보기.
