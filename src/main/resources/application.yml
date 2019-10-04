@@ -1,0 +1,15 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: KAFKA-SERVICE
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: http://localhost:29092
+          ##http://localhost:39092, http://localhost:29092 ,http://localhost:19092
+      bindings:
+        soheeTopic1:
+          destination: soheeTopic1

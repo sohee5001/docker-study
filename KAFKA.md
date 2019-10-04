@@ -65,6 +65,11 @@
     => ./kafka-consumer-groups --bootstrap-server 카프카 호스트 네임:카프카port --group 컨슈머그룹네임 --describe
         ![topic-list](./image/consumer-group-describe.png)
         
+    8. offsets 정보 보기.
+    => ./kafak-consumer-groups --bootstrap-server 카프카 호스트네임: 카프카port --describe --group 카프카 컨슈머 그룹이름 
+    ![topic-list](./image/consumer-group-offset-describe.png)
+       
+        
    - 카프카는 과반수 투표방식을 사용하지 않지만 , Replication Factor를 3으로 할 경우 균일하게 분배하기 위해서 노드 수는 최소 3으로 해야한다.
    (__consumer_offsets 토픽은 기본값이 RF3)     
    
@@ -86,4 +91,18 @@
                 컨슈머 그룹의 정보는 컨슈머 그룹 리더가 가지고 있고 리밸런스 과정에서 컨슈머에 대한 파티션 소유권을 조정한다. <br>
                 컨슈머 그룹에 처음으로 속하는 컨슈머가 리더가 된다.
  
+    
+ * 옵션.
+    - log.retetion.hours : 카프카에서 토픽으로 저장되는 모든 메시지를 해당 시간만큼 보관. * default= 72(4일)
+    - delete.toopic.enable=true : 디스크가 가득차서 토픽을 삭제함. 옵션 적용이 안되어 있다면 토픽 삭제 불가??
+    - log.dirs = /data : 토픽들의 메시지들이 저장되는 실제 경로. 용량이 큰 값의 별도의 디스크 경로로 설정하지 않으면 기본값 /temp/kafka-logs로 설정되어 있어 OS영역의 디스크를 사용하게 되고 용량이 가득차는 경우 발생. 
+    - acks란 producer에 보낸 데이터 상태 설정. ( producer configs )
+        - acks = 0  : ( 유실률 상 / 속도 상) 프로듀서에 데이터를 보내고 제대로 갔는지 확인응답을 하지 않고 바로 바로 데이터를 이어서 보낸다. <br>
+        - acks = 1  : ( 유실률 중 / 속도 중 ) 프로듀서에 데이터를 보내고 제대로 갔는지 확인응답을 한다.( 카프카의 리더만 체크 follower들은 확인 하지 않음 그렇기에 메시지의 유실이 있을수 있다.)<br>
+        - acks = -1(all)  : ( 유실률 하 / 속도 하 ) 프로듀서에 데이터를 보내고 제대로 갔는지 확인응답을 한다.( 카프카의 리더 + follower 까지 응답확인을 하기에 손실률이 거의 없음. 대신 속도는 체크가 오래걸리기에 떨어진다.)<br>
         
+    - min.insync.replicas 옵션은 프로듀서가 acks=all로 설정히야 메시지 전송시, write 성공하기 위한 최소 복제본 수.
+        ex)  성공 = ( 카프카-2 복제-2 파티션-1 min.insync.replicas-1) 일때 -> 리더 1개, 복제 1개 존재 . 이때 최소 복제수 1로 설정했기에 follower로 복제가 되지 않아도 leader는 프로듀서에게 확인 응답을 보낼수 있음.
+             실패 = ( 카프카-2 복제-2 파티션-1 min.insync.replicas-2) 일때 -> 리더 1개, 복제 1개 존재 . 이때 최소 복제수 2로 설정했기에 follower로 복제전에 leader가 죽으면 write는 실패로 로그 발생.
+             성공 = ( 카프카-3 복제-3 파티션-1 min.insync.replicas-1) 일때 -> 리더 1개, 복제 1개 존재 . 이때 최소 복제수 1
+             성공 = ( 카프카-3 복제-3 파티션-1 min.insync.replicas-2) 일때 -> 리더 1개, 복제 1개 존재 . 이때 최소 복제수 2로  follower중 한개만 성공하더라도 성공 . 둘다 복제 실패시 실패 로그 발생.     
