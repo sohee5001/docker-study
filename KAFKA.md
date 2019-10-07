@@ -57,7 +57,8 @@
     => ./kafka-console-consumer --topic testA(가져올 토픽명) --bootstrap-server 카프카 호스트 네임:카프카port --group 컨슈머그룹명지정. --from-beginning <br> * --from-beginning : 맨 처음부터 메시지를 가져옴.
         ![topic-list](./image/consumerGroup.png)   
   
-    6. consumer 그룹 리스트 확인하기
+    6. consumer 그룹 리스트 확인하
+    기
     => ./kafka-consumer-groups --bootstrap-server 카프카 호스트 네임:카프카port --list<br>
         ![topic-list](./image/consumer-groupList.png)  
     

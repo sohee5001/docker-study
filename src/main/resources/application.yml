@@ -8,7 +8,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: http://localhost:29092
+          brokers: http://kafka-1:29092
           ##http://localhost:39092, http://localhost:29092 ,http://localhost:19092
       bindings:
         soheeTopic1:
