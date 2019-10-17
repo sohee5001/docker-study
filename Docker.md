@@ -35,6 +35,10 @@ Docker란? <br>
                      * --name : 해당 컨테이너의 이름 지정.
                      * -c : --cpu-share라고 쓰이는 옵션. cpu 스케쥴링에서 컨테이너가 얼마나 많은 부분을 차지할지 정함. default 1024
                      * -m : 메모리 제한.
+                     * --restart : docker container가 멈췄을때 자동 재시작해줌.
+                            -> --restart=on-failure:5  실패시 5번정도 수행.
+                            -> --restart=always 항상 수행.
+                            -> --restart=unless-stopped  컨테이너가 명시적으로 정지하지 않는 한 멈추지않고 재실작.
                        
     3.  docker 컨테이너의 shell 접속 <br>
           
