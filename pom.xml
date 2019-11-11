@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.soft</groupId>
-    <artifactId>docker</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>docker</name>
-    <description>Demo project for Spring Boot</description>
+    <artifactId>kafka-test</artifactId>
+    <version>0.1.5</version>
+    <name>kafka-test</name>
+    <description>kafka consumer Test</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,9 @@
         <java.version>1.8</java.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
 
+        <!-- custom properties -->
         <swagger.version>2.9.2</swagger.version>
+        <docker.image.prefix>ella1</docker.image.prefix>
 
     </properties>
 
@@ -28,7 +30,7 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
 
         <!-- Spring Web -->
@@ -64,7 +66,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-zipkin</artifactId>
         </dependency>
-
 
 
         <!-- Message Driven -->
@@ -151,6 +152,17 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.12</version>
+                <configuration>
+                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
+                    <tag>${project.version}</tag>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

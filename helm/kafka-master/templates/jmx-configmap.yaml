@@ -1,0 +1,36 @@
+{{- if and .Values.prometheus.jmx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "kafka.fullname" . }}-jmx-configmap
+  labels:
+    app: {{ template "kafka.name" . }}
+    chart: {{ template "kafka.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  jmx-kafka-prometheus.yml: |+
+    jmxUrl: service:jmx:rmi:///jndi/rmi://localhost:{{ .Values.jmx.port }}/jmxrmi
+    lowercaseOutputName: true
+    lowercaseOutputLabelNames: true
+    ssl: false
+    rules:
+    - pattern : kafka.server<type=ReplicaManager, name=(.+)><>(Value|OneMinuteRate)
+      name: "{{ template "kafka.fullname" . }}_server_replicamanager_$1"
+    - pattern : kafka.controller<type=KafkaController, name=(.+)><>Value
+      name: "{{ template "kafka.fullname" . }}_controller_kafkacontroller_$1"
+    - pattern : kafka.server<type=BrokerTopicMetrics, name=(.+)><>OneMinuteRate
+      name: "{{ template "kafka.fullname" . }}_server_brokertopicmetrics_$1"
+    - pattern : kafka.network<type=RequestMetrics, name=RequestsPerSec, request=(.+)><>OneMinuteRate
+      name: "{{ template "kafka.fullname" . }}_network_requestmetrics_requestspersec_$1"
+    - pattern : kafka.network<type=SocketServer, name=NetworkProcessorAvgIdlePercent><>Value
+      name: "{{ template "kafka.fullname" . }}_network_socketserver_networkprocessoravgidlepercent"
+    - pattern : kafka.server<type=ReplicaFetcherManager, name=MaxLag, clientId=(.+)><>Value
+      name: "{{ template "kafka.fullname" . }}_server_replicafetchermanager_maxlag_$1"
+    - pattern : kafka.server<type=KafkaRequestHandlerPool, name=RequestHandlerAvgIdlePercent><>OneMinuteRate
+      name: "{{ template "kafka.fullname" . }}_kafkarequesthandlerpool_requesthandleravgidlepercent"
+    - pattern : kafka.controller<type=ControllerStats, name=(.+)><>OneMinuteRate
+      name: "{{ template "kafka.fullname" . }}_controller_controllerstats_$1"
+    - pattern : kafka.server<type=SessionExpireListener, name=(.+)><>OneMinuteRate
+      name: "{{ template "kafka.fullname" . }}_server_sessionexpirelistener_$1"
+{{- end }}

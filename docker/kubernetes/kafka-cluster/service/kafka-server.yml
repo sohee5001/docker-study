@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name:  kafka-server
+  labels:
+    app: kafka
+    chart: kafka-0.1.0    # chart의 버전은 kafka-0.1.0
+    heritage: Tiller      # helm 서버
+spec:
+  type: ClusterIP
+  selector:
+    app: kafka
+  ports:
+    - name: kafka
+      port: 9092
+      protocol: TCP
+      targetPort: 9092
+    - name: jmx
+      port: 5556
+      protocol: TCP
+      targetPort: 5556
+

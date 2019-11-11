@@ -1,0 +1,149 @@
+version: '2'
+
+networks:
+  kafka:
+
+# 주키퍼와 카프카 서비스를 설정한다
+services:
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper1
+    hostname: zookeeper-1
+    ports:
+      - 2181:2181     # 클라이언트 포트 12181를 bind 한다. 호스트포트:컨테이너포트
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000   #default 3000, tick은 주키퍼가 사용하는 ‘시간의 기본 단위’
+      ZOOKEEPER_INIT_LIMIT: 5  # 처음 주키퍼의 follower가 leader와의 연결 시도시 가지는 tick 제한 횟수. 팔로워가 훨씬 뒤쳐진 경우 처음 연결할때 많은 양의 데이터 전송이 발생할 수 있다. (이땐 좀 늘여야한다)
+      ZOOKEEPER_SYNC_LIMIT: 2  # 팔로워가 리더와 동기화 하는데에 대한 타임아웃 틱갯수로 설정 (필수)
+      ZOOKEEPER_SERVERS: zookeeper-1:22888:23888 # zookeeper 서버 ID:Quorum Port:Leader election Port  / Quorum Port-> 클러스터내의 zookeeper 서버간의 통신을 위한 포트 / Leader election Port: 클러스터 내의 zookeeper 서버간의 leader 선출 포트
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 60   #IP 주소로 식별 된 단일 클라이언트가 ZooKeeper 앙상블의 단일 구성원에 대해 수행 할 수있는 동시 연결 수 (소켓 레벨에서)를 제한합니다.
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: 24 #GC 발생하는 시간의 간격. 0이 아닌 숫자로 설정하면 GC의 주기를 뜻한다.
+      ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT: 3  #데이터를 제거할 때 유지해야하는 스냅샷의 갯수와 트랜잭션 로그 갯수, 주키퍼는 주기적으로 GC가 일어난다. 이 때 유지해야하는 스냅샷의 갯수를 말한다. 기본은 3
+    networks:
+      - kafka
+
+  kafka-1:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka1
+    ports:
+      - 9092:9092
+      - 9192:9192
+    depends_on:             #컨테이너가 시작되는 순서 컨트롤  kafka 수행 이전에 zookeeper-1 수행
+      - zookeeper-1
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9092,PLAINTEXT://kafka-1:9192    # kafka 브로커에 접근할 수 있는 주소 목록. INTERNAL : 내부에서 도커로 접속할수 있는 주소. EXTERNAL : 외부에서 도커로 접속할수 잇는 주소
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT    # PLAINTEXT: 통신 규약.
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL      # 보안상. INTERNAL일경우 메시지 확인 가능 EXTERNAL은 확인 불가.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - kafka
+
+      #KAFKA_CREATE_TOPICS: "topic1:3:3"    # Topic명:Partition개수:Replica개수
+
+  kafka-2:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka2
+    ports:
+      - 19092:19092
+      - 19192:19192
+    depends_on:             #컨테이너가 시작되는 순서 컨트롤  kafka 수행 이전에 zookeeper-1 수행
+      - zookeeper-1
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19092,PLAINTEXT://kafka-2:19192     # kafka 브로커에 접근할 수 있는 주소 목록. INTERNAL : 내부에서 도커로 접속할수 있는 주소. EXTERNAL : 외부에서 도커로 접속할수 잇는 주소
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT    # PLAINTEXT: 통신 규약.
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL      # 보안상. INTERNAL일경우 메시지 확인 가능 EXTERNAL은 확인 불가.
+    networks:
+      - kafka
+
+  kafka-3:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka3
+    ports:
+      - 29092:29092
+      - 29192:29192
+    depends_on:
+      - zookeeper-1
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:29092,PLAINTEXT://kafka-3:29192     # kafka 브로커에 접근할 수 있는 주소 목록. INTERNAL : 내부에서 도커로 접속할수 있는 주소. EXTERNAL : 외부에서 도커로 접속할수 잇는 주소
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT    # PLAINTEXT: 통신 규약.
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL      # 보안상. INTERNAL일경우 메시지 확인 가능 EXTERNAL은 확인 불가.
+    networks:
+      - kafka
+
+# 카프카 매니저 GUI 툴.
+  kafka-manager:
+    container_name: kafka-manager
+    image: hlebalbau/kafka-manager:latest
+    hostname: kafka-manager
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - zookeeper-1
+    command: -Dconfig.file=/kafka-manager/conf/application.conf -Dapplication.home=/kafkamanager
+    environment:
+      ZK_HOSTS: zookeeper-1:2181
+    ports:
+      - 9010:9000
+    networks:
+      - kafka
+
+#  카프카 스키마 저장소 JSON 형태   (restful 인터페이스를 사용하여 스키마 관리 또는 조회)
+  kafka-schema-registry:
+    image: confluentinc/cp-schema-registry:5.2.1
+    hostname: kafka-schema-registry
+    ports:
+      - 18081:8081
+    environment:
+      #SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper-1:2181
+      SCHEMA_REGISTRY_HOST_NAME: kafka-schema-registry
+      SCHEMA_REGISTRY_LISTENERS:  http://0.0.0.0:18081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-1:9192, PLAINTEXT://kafka-2:19192, PLAINTEXT://kafka-3:29192
+    depends_on:
+      - zookeeper-1
+      - kafka-1
+      - kafka-2
+      - kafka-3
+
+# 카프카 REST-PROXY BOOTSTRAP-SERVER
+  kafka-rest-proxy:
+    image: confluentinc/cp-kafka-rest:5.2.1
+    hostname: kafka-rest-proxy
+    ports:
+      - 38082:8082
+    environment:
+      KAFKA_REST_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_REST_LISTENERS:  http://kafka-rest-proxy:38082
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:18081
+      KAFKA_REST_HOST_NAME: kafka-rest-proxy
+      #KAFKA_REST_BOOTSTRAP_SERVERS: kafka-1:9192,kafka-2:19192,kafka-3:29192
+    depends_on:
+      - zookeeper-1
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - kafka-schema-registry
+
+# 카프카 topics GUI 툴.
+  kafka-topics-ui:
+    image: landoop/kafka-topics-ui:0.9.4
+    hostname: kafka-topics-ui
+    ports:
+      - 8000:8000
+    environment:
+      KAFKA_REST_PROXY_URL: http://kafka-rest-proxy:38082
+      PROXY: "true"
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - zookeeper-1
+

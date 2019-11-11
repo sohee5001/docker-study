@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: zookeeper
+    chart: zookeeper-0.1.0    # chart의 버전은 kafka-0.1.0
+    heritage: Tiller      #  (helm의 chart 배포, 릴리즈 관리) 서버
+  name:  so-zookeeper-server
+  namespace: kafka
+  resourceVersion: "10381812"      # 자동 생성
+  selfLink: /api/v1/namespaces/rnd-kafka/services/so-zookeeper-server
+  uid: 1234         # 쿠버네티스 오브젝트는 이름과 uid로 식별된다. # 자동 생성
+spec:
+  ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: server
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: leader-election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+  selector:
+    app: zookeeper
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

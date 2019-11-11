@@ -1,5 +1,5 @@
 server:
-  port: 8086
+  port: 8080
 
 spring:
   application:
@@ -8,8 +8,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: http://kafka-1:29092
-          ##http://localhost:39092, http://localhost:29092 ,http://localhost:19092
+          brokers: http://kafka-server-0.kafka-server.kafka:9092
       bindings:
         soheeTopic1:
           destination: soheeTopic1
