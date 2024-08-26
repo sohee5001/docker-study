@@ -21,7 +21,7 @@
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
 
         <!-- custom properties -->
-        <swagger.version>2.9.2</swagger.version>
+        <swagger.version>2.10.0</swagger.version>
         <docker.image.prefix>ella1</docker.image.prefix>
 
     </properties>
